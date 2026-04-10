@@ -1,0 +1,18 @@
+networks:
+    dev-shared:
+        external: true
+
+services:
+    auth-api:
+        container_name: auth-api
+        build: ./
+        ports:
+            - "3000:3000"
+        volumes:
+            - ./src:/app
+        env_file:
+            - .env
+        environment:
+            - DATABASE_URL=${DATABASE_URL}
+        networks:
+            - dev-shared
