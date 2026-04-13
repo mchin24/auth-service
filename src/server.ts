@@ -7,11 +7,11 @@ const app = express();
 
 app.get('/', async (req, res) => {
 	const client = new Client({
-		host: 'common-db',
+		host: process.env.AUTHDB_HOST,
 		port: 5432,
-		database: 'auth',
-		user: 'authadmin',
-		password: '80E9tktSlq4RfO'
+		database: process.env.AUTHDB_DB,
+		user: process.env.AUTHDB_USER,
+		password: process.env.AUTHDB_PASSWORD
 	});
 	
 	try {
