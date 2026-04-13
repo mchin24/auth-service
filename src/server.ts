@@ -1,5 +1,7 @@
-const express = require('express');
-const pg = require('pg');
+import express from 'express';
+import pg from 'pg';
+
+
 const { Client } = pg;
 const app = express();
 
@@ -21,7 +23,7 @@ app.get('/', async (req, res) => {
 			status: 'connected',
 			result: result.rows[0]
 		})
-	} catch (err) {
+	} catch (err: any) {
 		res.status(500).json({
 			status: 'error',
 			message: err.message
