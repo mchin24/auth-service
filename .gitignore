@@ -140,3 +140,5 @@ vite.config.ts.timestamp-*
 
 # Jetbrains IDE folder
 .idea/
+
+dist/
