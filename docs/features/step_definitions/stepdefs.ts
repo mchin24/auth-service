@@ -7,9 +7,9 @@ function createUserAccount(email: string, password: string): UserAccount {
     return { email: email, password: password}
 }
 
-Given('an email address and password', function () {
-    this.email = "test@email.com";
-    this.password = "test123"
+Given('an {string} and {string}', function (email: string, password: string) {
+    this.email = email;
+    this.password = password;
 });
 
 When('there is no existing account with a matching email address', function ()     {
