@@ -8,7 +8,7 @@
     "build": "tsc",
     "dev": "tsx watch src/server.ts",
     "start": "node ./dist/server.js",
-    "test": "cucumber-js --import tsx"
+    "bdd-test": "cucumber-js --import tsx"
   },
   "keywords": [],
   "author": "",
@@ -21,8 +21,11 @@
   },
   "devDependencies": {
     "@cucumber/cucumber": "^12.8.0",
+    "@jest/globals": "^30.3.0",
+    "@types/jest": "^30.0.0",
     "@types/pg": "^8.20.0",
     "jest": "^30.3.0",
+    "ts-jest": "^29.4.9",
     "tsx": "^4.21.0",
     "typescript": "^6.0.2"
   }
