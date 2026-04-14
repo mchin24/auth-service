@@ -12,5 +12,6 @@ services:
             - .env
         environment:
             - DATABASE_URL=${DATABASE_URL}
+            - NODE_OPTIONS=--experimental-vm-modules
         networks:
             - dev-shared
