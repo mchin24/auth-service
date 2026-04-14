@@ -8,7 +8,7 @@
     "build": "tsc",
     "dev": "tsx watch src/server.ts",
     "start": "node ./dist/server.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "cucumber-js --import tsx"
   },
   "keywords": [],
   "author": "",
@@ -20,6 +20,7 @@
     "pg": "^8.11.3"
   },
   "devDependencies": {
+    "@cucumber/cucumber": "^12.8.0",
     "@types/pg": "^8.20.0",
     "jest": "^30.3.0",
     "tsx": "^4.21.0",

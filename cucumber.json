@@ -1,0 +1,9 @@
+{
+    "default": {
+        "paths": ["docs/features/**/*.feature"],
+        "import": ["docs/features/step_definitions/**/*.ts"],
+        "formatOptions": {
+            "snippetInterface": "synchronous"
+        }
+    }
+}

@@ -8,3 +8,4 @@ dist
 docker-compose*
 README.md
 .env
+docs
