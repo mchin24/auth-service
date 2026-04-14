@@ -1,34 +1,34 @@
 import express from 'express';
-import pg from 'pg';
+import type {UserAccount} from './types.js';
+import {getMe} from './controllers/auth.js';
 
-
-const { Client } = pg;
 const app = express();
 
-app.get('/', async (req, res) => {
-	const client = new Client({
-		host: process.env.AUTHDB_HOST,
-		port: 5432,
-		database: process.env.AUTHDB_DB,
-		user: process.env.AUTHDB_USER,
-		password: process.env.AUTHDB_PASSWORD
-	});
-	
-	try {
-		await client.connect();
-		const result = await client.query('SELECT 1 as ok');
-		await client.end();
-		
-		res.json({
-			status: 'connected',
-			result: result.rows[0]
-		})
-	} catch (err: any) {
-		res.status(500).json({
-			status: 'error',
-			message: err.message
-		})
-	}
+app.get('/auth/me', async (req, res) => {
+    const user: UserAccount | null = await getMe(req.headers.authorization ?? "");
+    if(user) {
+        return res.status(200).json(user);
+    } else {
+        res.status(404).json({message: 'User not found'});
+    }
 });
+
+app.post('/auth/register', async (req, res) => {
+})
+
+app.post('/auth/login', async (req, res) => {
+})
+
+app.post('/auth/logout', async (req, res) => {
+})
+
+app.post('/auth/refresh', async (req, res) => {
+})
+
+app.post('/auth/forgot-password', async (req, res) => {
+})
+
+app.post('/auth/reset-password', async (req, res) => {
+})
 
 app.listen(3000, () => console.log('Server started on port 3000'));
