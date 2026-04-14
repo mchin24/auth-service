@@ -8,7 +8,7 @@
     "build": "tsc",
     "dev": "tsx watch src/server.ts",
     "start": "node ./dist/server.js",
-    "bdd-test": "cucumber-js --import tsx",
+    "bdd-test": "NODE_OPTIONS='--import tsx' cucumber-js",
     "test": "NODE_OPTIONS=--experimental-vm-modules jest"
   },
   "keywords": [],
