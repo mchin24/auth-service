@@ -11,5 +11,5 @@ export function isValidPassword(password: string): boolean {
 }
 
 export function getMe(access_token: string): UserAccount | null {
-    return null;
+    return {id: 123456, email: 'dummy@example.com', username: 'dummy' };
 }
