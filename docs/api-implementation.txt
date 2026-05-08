@@ -1,0 +1,90 @@
+auth functions
+- type ValidationResponse { valid: boolean, error: string }
+- type AuthTokens { accessToken: string, refreshToken: string }
+- isValidEmail(email: string): ValidationResponse
+- isValidPassword(password: string): ValidationResponse
+- createUser(email: string, password: string): Promise<UserAccount>
+- getUserByEmail(email: string): Promise<UserAccount | null>
+- verifyPassword(plaintext: string, hash: string): Promise<boolean>
+- generateTokens(user: UserAccount): AuthTokens
+- validateRefreshToken(token: string): Promise<boolean>
+- invalidateRefreshToken(token: string): Promise<void>
+- getUserFromAccessToken(accessToken: string): Promise<UserAccount | null>
+- generatePasswordResetToken(userId: number): Promise<string>
+- validatePasswordResetToken(token: string): Promise<UserAccount | null>
+- updatePassword(userId: number, newPassword: string): Promise<void>
+- invalidatePasswordResetToken(token: string): Promise<void>
+
+POST /auth/register
+- validate all required inputs are present
+-- if not all required are present, return 400 response
+- isValidEmail(email)
+- isValidPassword(password)
+-- if !isValidEmail || !isValidPassword, return 400 response
+- createUser(email, password)
+- if user already exists, return 409
+- if some other error, return 500
+- generateTokens(user)
+- return 201 + user + tokens
+
+POST /auth/login
+- validate all required inputs are present
+-- if not all required are present, return 400 response
+- isValidEmail(email)
+- isValidPassword(password)
+-- if !isValidEmail || !isValidPassword, return 400 response
+- getUserByEmail(email)
+- if not found, return 401
+- verifyPassword(plaintext, hash)
+- if no match, return 401
+- generateTokens(user)
+- return 200 + user + tokens
+
+POST /auth/logout
+- validate refresh token is present
+-- if not present, return 400
+- validateRefreshToken(token)
+- if token isn't recognized, return 401
+- invalidateRefreshToken(token)
+- return 204
+
+POST /auth/refresh
+- validate refresh token is present
+-- if not present, return 400
+- validateRefreshToken(token)
+- if token isn't recognized or expired, return 401
+- invalidateRefreshToken(token)
+- getUserFromAccessToken or retrieve user from token claims
+- generateTokens(user)
+- return 200 + new tokens
+
+GET /auth/me
+- validate Authorization header (Bearer token) is present
+-- if not present, return 400
+- getUserFromAccessToken(accessToken)
+- if token invalid or expired, return 401
+- return 200 + user
+
+POST /auth/forgot-password
+- validate email is present
+-- if not present, return 400
+- getUserByEmail(email)
+- if user not found, return 200 (do not reveal whether email exists)
+- generatePasswordResetToken(userId)
+- enqueue email job via Job Queue Service with reset token
+- return 200
+
+POST /auth/reset-password
+- validate token and newPassword are present
+-- if not present, return 400
+- isValidPassword(newPassword)
+-- if not valid, return 400
+- validatePasswordResetToken(token)
+- if token invalid or expired, return 401
+- updatePassword(userId, newPassword)
+- invalidatePasswordResetToken(token)
+- return 200
+
+
+
+mucking around
