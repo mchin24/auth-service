@@ -1,13 +1,44 @@
+import { sign } from 'jsonwebtoken';
 import pg from 'pg'
 import { Client } from 'pg'
-import type { UserAccount } from "../types.js"
+import type { UserAccount, ValidationResponse, AuthTokens } from "../types.js"
 
-export function isValidEmail(email: string): boolean {
+export async function isValidEmail(email: string): Promise<boolean> {
     return false;
 }
 
-export function isValidPassword(password: string): boolean {
+export async function isValidPassword(password: string): Promise<boolean> {
     return false;
+}
+
+export async function createUser(): Promise<UserAccount> {
+
+}
+
+export async function getUserByEmail(email: string): Promise<UserAccount | null> {
+
+}
+
+export async function verifyPassword(plaintext: string, hash: string): Promise<boolean> {
+
+}
+
+export function generateTokens(user: UserAccount): AuthTokens {
+    const payload = {userId: user.id, email: user.email, username: user.username};
+
+    const secret = process.env.JWT_SECRET;
+    const refreshSecret = process.env.JWT_REFRESH_SECRET;
+
+    if (!secret) { throw new Error('JWT_SECRET is not set'); }
+    if (!refreshSecret) { throw new Error('JWT_REFRESH_SECRET is not set'); }
+
+    const accessToken = sign(payload, secret, {expiresIn: '15m'});
+    const refreshToken = sign(payload, refreshSecret, {expiresIn: '7d'});
+    return {accessToken, refreshToken};
+}
+
+export async function validateRefreshToken(token: string): Promise<boolean> {
+
 }
 
 export function getMe(access_token: string): UserAccount | null {
