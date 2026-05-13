@@ -81,6 +81,19 @@ describe('Testing Register API Response - 4xx responses', () => {
 
 
 // login tests
+// POST /auth/login
+// - validate all required inputs are present
+// -- if not all required are present, return 400 response
+// - isValidEmail(email)
+// - isValidPassword(password)
+// -- if !isValidEmail || !isValidPassword, return 400 response
+// - getUserByEmail(email)
+// - if not found, return 401
+// - verifyPassword(plaintext, hash)
+// - if no match, return 401
+// - generateTokens(user)
+// - return 200 + user + tokens
+
 
 describe('Testing Login API Response - 200 response', () => {
   test('successful account login on /auth/login should return 200', async () => {
@@ -94,6 +107,11 @@ describe('Testing Login API Response - 200 response', () => {
     expect(response.status).toBe(200);
     expect(response.accessToken).not.toBe(null);
     expect(response.refreshToken).not.toBe(null);
+    expect(verifyPassword(user.password, response.user.password)).toBe(true);
+
+
+    // - verifyPassword(plaintext: string, hash: string): Promise<boolean>
+
   });
 });
 
@@ -130,6 +148,8 @@ describe('Testing Login API Response - 4xx response', () => {
     const response = await request(app).post('/auth/login').send(user).set('Accept', 'application/json');
     
     expect(response.status).toBe(401);
+    expect(verifyPassword(user.password, response.user.password)).not.toBe(true);
+
   });  
 });
 
