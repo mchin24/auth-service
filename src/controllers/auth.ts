@@ -1,4 +1,4 @@
-import { sign } from 'jsonwebtoken';
+import jwt from 'jsonwebtoken';
 import pg from 'pg'
 import { Client } from 'pg'
 import type { UserAccount, ValidationResponse, AuthTokens } from "../types.js"
@@ -11,8 +11,8 @@ export async function isValidPassword(password: string): Promise<boolean> {
     return false;
 }
 
-export async function createUser(): Promise<UserAccount> {
-
+export async function createUser(email: string, password: string): Promise<UserAccount> {
+    return {id: 0, email: '', username: ''};
 }
 
 export async function getUserByEmail(email: string): Promise<UserAccount | null> {
@@ -32,8 +32,8 @@ export function generateTokens(user: UserAccount): AuthTokens {
     if (!secret) { throw new Error('JWT_SECRET is not set'); }
     if (!refreshSecret) { throw new Error('JWT_REFRESH_SECRET is not set'); }
 
-    const accessToken = sign(payload, secret, {expiresIn: '15m'});
-    const refreshToken = sign(payload, refreshSecret, {expiresIn: '7d'});
+    const accessToken = jwt.sign(payload, secret, {expiresIn: '15m'});
+    const refreshToken = jwt.sign(payload, refreshSecret, {expiresIn: '7d'});
     return {accessToken, refreshToken};
 }
 
