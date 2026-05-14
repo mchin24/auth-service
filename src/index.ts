@@ -1,3 +1,3 @@
-export function sum(num1: number, num2: number): number {
-    return num1 + num2;
-}
+import app from './server.js';
+
+app.listen(3000, () => console.log('Server started on port 3000'));
