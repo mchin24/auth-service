@@ -7,8 +7,8 @@ import { isValidPassword } from "../src/controllers/auth.js";
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])(?=.{8,})/;
 
-const request = require('supertest');
-const app = require('../app'); // Your Express app
+import request from 'supertest';
+import app from '../src/server.js'; // Your Express app
 
 
 
