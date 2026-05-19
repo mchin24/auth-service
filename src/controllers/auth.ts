@@ -1,14 +1,22 @@
 import jwt from 'jsonwebtoken';
+import { z } from 'zod';
 import pg from 'pg'
 import { Client } from 'pg'
 import type { UserAccount, ValidationResponse, AuthTokens } from "../types.js"
 
-export async function isValidEmail(email: string): Promise<boolean> {
-    return false;
+export function isValidEmail(email: string): boolean {
+    return z.email().safeParse(email).success;
 }
 
-export async function isValidPassword(password: string): Promise<boolean> {
-    return false;
+export function isValidPassword(password: string): boolean {
+    const passwordSchema = z.string()
+    .min(8)
+    .regex(/[a-z]/)
+    .regex(/[A-Z]/)
+    .regex(/[0-9]/)
+    .regex(/[!@#$%^&*]/);
+
+    return passwordSchema.safeParse(password).success;
 }
 
 export async function createUser(email: string, password: string): Promise<UserAccount> {
