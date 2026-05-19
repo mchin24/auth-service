@@ -1,8 +1,21 @@
 import jwt from 'jsonwebtoken';
 import { z } from 'zod';
-import pg from 'pg'
-import { Client } from 'pg'
+import pool from '../db.js';
+import bcrypt from 'bcryptjs';
 import type { UserAccount, ValidationResponse, AuthTokens } from "../types.js"
+
+const PG_UNIQUE_VIOLATION = '23505';
+
+export class DuplicateEmailError extends Error {
+    constructor() { super('An account for this email already exists.'); }
+}
+
+export class DatabaseError extends Error {
+    constructor(cause?: unknown) {
+        super('Database error');
+        this.cause = cause;
+    }
+}
 
 export function isValidEmail(email: string): boolean {
     return z.email().safeParse(email).success;
@@ -19,8 +32,18 @@ export function isValidPassword(password: string): boolean {
     return passwordSchema.safeParse(password).success;
 }
 
-export async function createUser(email: string, password: string): Promise<UserAccount> {
-    return {id: 0, email: '', username: ''};
+export async function createUser(email: string, password: string, username: string): Promise<UserAccount> {
+    try {
+        const passwordHash = await bcrypt.hash(password, 10);
+        const result = await pool.query(
+            'INSERT INTO users (email, password_hash, username) VALUES ($1, $2, $3) RETURNING id, email, username',
+            [email, passwordHash, username]
+        );
+        return result.rows[0] as UserAccount;
+    } catch (error: any) {
+        if (error.code === PG_UNIQUE_VIOLATION) throw new DuplicateEmailError();
+        throw new DatabaseError(error);
+    }
 }
 
 export function generateTokens(user: UserAccount): AuthTokens {
