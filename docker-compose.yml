@@ -8,6 +8,7 @@ services:
         build: ./
         ports:
             - "3000:3000"
+        command: npm run dev
         env_file:
             - .env
         environment:
@@ -15,3 +16,6 @@ services:
             - NODE_OPTIONS=--experimental-vm-modules
         networks:
             - dev-shared
+        volumes:
+            - ./:/app
+            - /app/node_modules
