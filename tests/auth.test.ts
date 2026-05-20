@@ -1,6 +1,6 @@
 import { describe, expect, test } from "@jest/globals";
 import { type UserAccount, isUserAccount } from "../src/types.js";
-import { getMe } from "../src/controllers/auth.js";
+import { getMe } from "../src/services/auth.js";
 import { isValidEmail } from "../src/controllers/auth.js";
 import { isValidPassword } from "../src/controllers/auth.js";
 

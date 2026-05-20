@@ -1,6 +1,6 @@
 import express from 'express';
 import type {UserAccount} from './types.js';
-import {getMe} from './controllers/auth.js';
+import {getMe} from './services/auth.js';
 
 const app = express();
 
