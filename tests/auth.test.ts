@@ -1,6 +1,6 @@
 import { describe, expect, test } from "@jest/globals";
 import { type UserAccount, isUserAccount } from "../src/types.js";
-import { getMe } from "../src/controllers/auth.js";
+import { getMeHandler } from "../src/services/auth.js";
 import { isValidEmail } from "../src/controllers/auth.js";
 import { isValidPassword } from "../src/controllers/auth.js";
 
@@ -21,8 +21,8 @@ let user: UserAccount = {
 
 
 describe("Getting user information", () => {
-  test("Returns a UserAccount", () => {
-    const user = getMe("12345");
+  test("Returns a UserAccount", async () => {
+    const user = await getMeHandler("12345") as UserAccount;
     expect(isUserAccount(user)).toBe(true);
     expect(user?.email).not.toBe(null);
 

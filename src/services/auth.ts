@@ -44,6 +44,6 @@ export function generateTokens(user: UserAccount): AuthTokens {
 }
 
 
-export function getMe(access_token: string): UserAccount | null {
-    return {id: 123456, email: 'dummy@example.com', username: 'dummy' };
+export async function getMeHandler(access_token: string): Promise<UserAccount | null> {
+    return { id: 123456, username: 'dummy', email: 'dummy@example.com' };
 }
