@@ -1,6 +1,0 @@
-services:
-    auth-api:
-        command: npm run dev
-        volumes:
-            - ./:/app
-            - /app/node_modules
