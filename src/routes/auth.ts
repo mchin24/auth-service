@@ -14,28 +14,28 @@ router.get('/me', async (req, res) => {
     res.status(200).send(userAccount);
 });
 
-router.post('/auth/register', async (req, res) => {
-    res.status(501);
+router.post('/register', async (req, res) => {
+    res.status(501).send();
 })
 
 router.post('/auth/login', async (req, res) => {
-    res.status(501);
+    res.status(501).send();
 })
 
 router.post('/auth/logout', async (req, res) => {
-    res.status(501);
+    res.status(501).send();
 })
 
 router.post('/auth/refresh', async (req, res) => {
-    res.status(501);
+    res.status(501).send();
 })
 
 router.post('/auth/forgot-password', async (req, res) => {
-    res.status(501);
+    res.status(501).send();
 })
 
 router.post('/auth/reset-password', async (req, res) => {
-    res.status(501);
+    res.status(501).send();
 })
 
 export default router;
