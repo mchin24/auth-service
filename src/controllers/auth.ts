@@ -1,4 +1,6 @@
 import { z } from 'zod';
+import type {UserAccount} from "../types.js";
+import { getMeHandler } from "../services/auth.js";
 
 export function isValidEmail(email: string): boolean {
     return z.email().safeParse(email).success;
@@ -13,4 +15,12 @@ export function isValidPassword(password: string): boolean {
     .regex(/[!@#$%^&*]/);
 
     return passwordSchema.safeParse(password).success;
+}
+
+export async function getMe(access_token: string): Promise<UserAccount | null> {
+    const userAccount = await getMeHandler(access_token);
+    if(!userAccount) {
+        return null;
+    }
+    return userAccount;
 }

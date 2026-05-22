@@ -1,5 +1,9 @@
 import jwt from 'jsonwebtoken';
+<<<<<<< HEAD
 import { getPool } from '../db.js';
+=======
+import pool from '../db.js';
+>>>>>>> origin/main
 import bcrypt from 'bcryptjs';
 import type { UserAccount, ValidationResponse, AuthTokens } from "../types.js"
 const PG_UNIQUE_VIOLATION = '23505';
@@ -18,7 +22,11 @@ export class DatabaseError extends Error {
 export async function createUser(email: string, password: string, username: string): Promise<UserAccount> {
     try {
         const passwordHash = await bcrypt.hash(password, 10);
+<<<<<<< HEAD
         const result = await getPool().query(
+=======
+        const result = await pool.query(
+>>>>>>> origin/main
             'INSERT INTO users (email, password_hash, username) VALUES ($1, $2, $3) RETURNING id, email, username',
             [email, passwordHash, username]
         );
@@ -44,6 +52,11 @@ export function generateTokens(user: UserAccount): AuthTokens {
 }
 
 
+<<<<<<< HEAD
 export function getMe(access_token: string): UserAccount | null {
     return {id: 123456, email: 'dummy@example.com', username: 'dummy' };
+=======
+export async function getMeHandler(access_token: string): Promise<UserAccount | null> {
+    return { id: 123456, username: 'dummy', email: 'dummy@example.com' };
+>>>>>>> origin/main
 }

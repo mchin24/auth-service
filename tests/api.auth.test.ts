@@ -1,6 +1,5 @@
 import { describe, expect, test } from "@jest/globals";
 import { type UserAccount, isUserAccount } from "../src/types.js";
-import { getMe } from "../src/services/auth.js";
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])(?=.{8,})/;

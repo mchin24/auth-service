@@ -1,6 +1,6 @@
 import { describe, expect, test } from "@jest/globals";
 import { type UserAccount, isUserAccount } from "../src/types.js";
-import { getMe } from "../src/services/auth.js";
+import { getMeHandler } from "../src/services/auth.js";
 import { isValidEmail } from "../src/controllers/auth.js";
 import { isValidPassword } from "../src/controllers/auth.js";
 
@@ -18,11 +18,22 @@ let user: UserAccount = {
   email: "test@example.com"
 };
 
+import request from 'supertest';
+import app from '../src/server.js'; // Your Express app
+
+
+
+let user: UserAccount = {
+  id: 1,
+  username: "testuser",
+  email: "test@example.com"
+};
+
 
 
 describe("Getting user information", () => {
-  test("Returns a UserAccount", () => {
-    const user = getMe("12345");
+  test("Returns a UserAccount", async () => {
+    const user = await getMeHandler("12345") as UserAccount;
     expect(isUserAccount(user)).toBe(true);
     expect(user?.email).not.toBe(null);
 
