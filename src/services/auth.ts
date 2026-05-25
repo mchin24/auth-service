@@ -15,7 +15,7 @@ export class DatabaseError extends Error {
     }
 }
 
-export async function createUser(email: string, password: string, username: string): Promise<UserAccount> {
+export async function createUserHandler(email: string, password: string, username: string): Promise<UserAccount> {
     try {
         const passwordHash = await bcrypt.hash(password, 10);
         const result = await pool.query(
@@ -25,6 +25,7 @@ export async function createUser(email: string, password: string, username: stri
         return result.rows[0] as UserAccount;
     } catch (error: any) {
         if (error.code === PG_UNIQUE_VIOLATION) throw new DuplicateEmailError();
+        console.error(error);
         throw new DatabaseError(error);
     }
 }
