@@ -14,19 +14,19 @@ router.post('/register', register)
 
 router.post('/login', login)
 
-router.post('/auth/logout', async (req, res) => {
+router.post('/logout', async (req, res) => {
     res.status(501).send();
 })
 
-router.post('/auth/refresh', async (req, res) => {
+router.post('/refresh', async (req, res) => {
     res.status(501).send();
 })
 
-router.post('/auth/forgot-password', async (req, res) => {
+router.post('/forgot-password', async (req, res) => {
     res.status(501).send();
 })
 
-router.post('/auth/reset-password', async (req, res) => {
+router.post('/reset-password', async (req, res) => {
     res.status(501).send();
 })
 

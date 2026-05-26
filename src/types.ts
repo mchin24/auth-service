@@ -6,11 +6,11 @@ export type UserAccount = {
 
 export type ValidationResponse = {
     valid: boolean;
-    error: string
+    error: string[];
 };
 export type AuthTokens = {
     accessToken: string;
-    refreshToken: string
+    refreshToken: string;
 }
 
 export function isUserAccount(user: any): user is UserAccount {
