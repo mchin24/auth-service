@@ -9,7 +9,7 @@
     "dev": "tsx watch src/index.ts",
     "start": "node ./dist/index.js",
     "bdd-test": "NODE_OPTIONS='--import tsx' cucumber-js",
-    "test": "NODE_OPTIONS=--experimental-vm-modules jest"
+    "test": "NODE_OPTIONS=--experimental-vm-modules npx jest --verbose"
   },
   "keywords": [],
   "author": "",
