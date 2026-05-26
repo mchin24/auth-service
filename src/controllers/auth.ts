@@ -89,11 +89,6 @@ export async function login(req: Request, res: Response): Promise<void> {
         return;
     }
 
-    if(!isValidEmail(req.body.email)) {
-        res.status(400).send({"message": "email is invalid"});
-        return;
-    }
-
     if (!req.body.password || !req.body.password.length) {
         res.status(400).send({"message": "password is required"});
         return;
