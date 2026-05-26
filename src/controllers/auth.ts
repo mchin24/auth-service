@@ -37,7 +37,7 @@ export async function createUserAccount(req: Request, res: Response): Promise<vo
         const password=req.body.password;
         const userAccount = await createUserHandler(email, password, email);
 
-        res.status(200).send({user: userAccount});
+        res.status(200).send(userAccount);
     } catch (error) {
         console.log(error);
         res.status(500).send();
