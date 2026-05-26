@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import type { Request, Response } from 'express';
-import type {AuthTokens, UserAccount} from "../types.js";
+import type {AuthTokens, UserAccount, ValidationResponse} from "../types.js";
 import {
     createUserHandler,
     DuplicateEmailError,
@@ -9,11 +9,15 @@ import {
     verifyUserByEmail
 } from "../services/auth.js";
 
-export function isValidEmail(email: string): boolean {
-    return z.email().safeParse(email).success;
+export function isValidEmail(email: string): ValidationResponse {
+    if(z.email().safeParse(email).success) {
+        return {valid: true, error: ''}
+    } else {
+        return {valid: false, error: ''}
+    }
 }
 
-export function isValidPassword(password: string): boolean {
+export function isValidPassword(password: string): ValidationResponse {
     const passwordSchema = z.string()
     .min(8)
     .regex(/[a-z]/)
@@ -21,7 +25,11 @@ export function isValidPassword(password: string): boolean {
     .regex(/[0-9]/)
     .regex(/[!@#$%^&*]/);
 
-    return passwordSchema.safeParse(password).success;
+    if(passwordSchema.safeParse(password).success) {
+        return {valid: true, error: ''}
+    } else {
+        return {valid: false, error: ''}
+    }
 }
 
 export async function getMe(access_token: string): Promise<UserAccount | null> {
@@ -44,7 +52,7 @@ export async function register(req: Request, res: Response): Promise<void> {
         return;
     }
 
-    if(!isValidEmail(req.body.email)) {
+    if(!isValidEmail(req.body.email).valid) {
         res.status(400).send({"message": "email is invalid"});
         return;
     }
@@ -54,7 +62,7 @@ export async function register(req: Request, res: Response): Promise<void> {
         return;
     }
 
-    if(!isValidPassword(req.body.password)) {
+    if(!isValidPassword(req.body.password).valid) {
         res.status(400).send({"message": "password is invalid"});
         return;
     }
