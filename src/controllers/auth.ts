@@ -6,8 +6,7 @@ import {
     DuplicateEmailError,
     generateTokens,
     getMeHandler,
-    getUserByEmail,
-    verifyPassword
+    verifyUserByEmail
 } from "../services/auth.js";
 
 export function isValidEmail(email: string): boolean {
@@ -82,24 +81,27 @@ export async function login(req: Request, res: Response): Promise<void> {
     res.contentType('application/json');
     if( !req.body ) {
         res.status(400).send({"message": "missing required fields"});
+        return;
     }
 
     if(!req.body.email || !req.body.email.length) {
         res.status(400).send({"message": "email is required"});
+        return;
+    }
+
+    if(!isValidEmail(req.body.email)) {
+        res.status(400).send({"message": "email is invalid"});
+        return;
     }
 
     if (!req.body.password || !req.body.password.length) {
         res.status(400).send({"message": "password is required"});
+        return;
     }
 
     try {
-        const verifyResult = await verifyPassword(req.body.email, req.body.password);
-        if(!verifyResult) {
-            res.status(401).send({"message": "invalid credentials"});
-            return
-        }
+        const userAccount = await verifyUserByEmail(req.body.email, req.body.password);
 
-        const userAccount = await getUserByEmail(req.body.email);
         if (!userAccount) {
             res.status(401).send({"message": "invalid credentials"});
             return;

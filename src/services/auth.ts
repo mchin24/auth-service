@@ -44,15 +44,14 @@ export async function getUserByEmail(email: string): Promise<UserAccount | null>
     }
 }
 
-export async function verifyPassword(email: string, password: string): Promise<boolean> {
+export async function verifyUserByEmail(email: string, password: string): Promise<UserAccount | false> {
     try {
-        const query = `SELECT password_hash FROM users WHERE email = $1`;
+        const query = `SELECT id, email, username, password_hash FROM users WHERE email = $1`;
         const dataset = await pool.query(query, [email]);
-        console.log(dataset);
-        if (dataset.rows.length === 0) {
+        if (!dataset || dataset.rows.length === 0 || !(await bcrypt.compare(password, dataset.rows[0].password_hash))) {
             return false;
         }
-        return await bcrypt.compare(password, dataset.rows[0].password_hash);
+        return { id: dataset.rows[0].id, email: dataset.rows[0].email, username: dataset.rows[0].username };
     } catch (error: any) {
         console.error(error);
         throw new DatabaseError(error);

@@ -5,7 +5,6 @@ auth functions
 - isValidPassword(password: string): ValidationResponse
 - createUser(email: string, password: string): Promise<UserAccount>
 - getUserByEmail(email: string): Promise<UserAccount | null>
-- verifyPassword(plaintext: string, hash: string): Promise<boolean>
 - generateTokens(user: UserAccount): AuthTokens
 - validateRefreshToken(token: string): Promise<boolean>
 - invalidateRefreshToken(token: string): Promise<void>
