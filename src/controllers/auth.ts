@@ -38,7 +38,7 @@ export async function register(req: Request, res: Response): Promise<void> {
         const userAccount = await createUserHandler(email, password, email);
         const tokens: AuthTokens = generateTokens(userAccount);
 
-        res.status(200).send({user: userAccount, tokens});
+        res.status(201).send({user: userAccount, tokens});
     } catch (error) {
         console.log(error);
         res.status(500).send();
