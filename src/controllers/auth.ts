@@ -45,12 +45,12 @@ export async function getMe(access_token: string): Promise<UserAccount | null> {
 export async function register(req: Request, res: Response): Promise<void> {
     res.contentType('application/json');
     if(!req.body) {
-        res.status(400).send({"message": "no message body"});
+        res.status(400).send({"message": ["no message body"]});
         return;
     }
 
     if(!req.body.email || !req.body.email.length) {
-        res.status(400).send({"message": "email is required"});
+        res.status(400).send({"message": ["email is required"]});
         return;
     }
 
@@ -61,7 +61,7 @@ export async function register(req: Request, res: Response): Promise<void> {
     }
 
     if(!req.body.password || !req.body.password.length) {
-        res.status(400).send({"message": "password is required"});
+        res.status(400).send({"message": ["password is required"]});
         return;
     }
 
@@ -80,7 +80,7 @@ export async function register(req: Request, res: Response): Promise<void> {
         res.status(201).send({user: userAccount, tokens});
     } catch (error) {
         if(error instanceof DuplicateEmailError) {
-            res.status(409).send({"message": "user is already registered"});
+            res.status(409).send({"message": ["user is already registered"]});
             return;
         }
 
@@ -92,17 +92,17 @@ export async function register(req: Request, res: Response): Promise<void> {
 export async function login(req: Request, res: Response): Promise<void> {
     res.contentType('application/json');
     if( !req.body ) {
-        res.status(400).send({"message": "missing required fields"});
+        res.status(400).send({"message": ["missing required fields"]});
         return;
     }
 
     if(!req.body.email || !req.body.email.length) {
-        res.status(400).send({"message": "email is required"});
+        res.status(400).send({"message": ["email is required"]});
         return;
     }
 
     if (!req.body.password || !req.body.password.length) {
-        res.status(400).send({"message": "password is required"});
+        res.status(400).send({"message": ["password is required"]});
         return;
     }
 
@@ -110,7 +110,7 @@ export async function login(req: Request, res: Response): Promise<void> {
         const userAccount = await verifyUserByEmail(req.body.email, req.body.password);
 
         if (!userAccount) {
-            res.status(401).send({"message": "invalid credentials"});
+            res.status(401).send({"message": ["invalid credentials"]});
             return;
         }
 
