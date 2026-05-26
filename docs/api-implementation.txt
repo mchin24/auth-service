@@ -1,5 +1,5 @@
 auth functions
-- type ValidationResponse { valid: boolean, error: string }
+- type ValidationResponse { valid: boolean, error: string[] }
 - type AuthTokens { accessToken: string, refreshToken: string }
 - isValidEmail(email: string): ValidationResponse
 - isValidPassword(password: string): ValidationResponse

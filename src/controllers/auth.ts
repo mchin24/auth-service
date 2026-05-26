@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import type { Request, Response } from 'express';
-import type {AuthTokens, UserAccount, ValidationResponse} from "../types.js";
+import type { AuthTokens, UserAccount, ValidationResponse } from "../types.js";
 import {
     createUserHandler,
     DuplicateEmailError,
@@ -10,10 +10,11 @@ import {
 } from "../services/auth.js";
 
 export function isValidEmail(email: string): ValidationResponse {
-    if(z.email().safeParse(email).success) {
-        return {valid: true, error: ''}
+    const result = z.email().safeParse(email);
+    if(!result.success) {
+        return {valid: false, error: result.error.issues.map(issue => issue.message) };
     } else {
-        return {valid: false, error: ''}
+        return {valid: true, error: []}
     }
 }
 
@@ -25,10 +26,11 @@ export function isValidPassword(password: string): ValidationResponse {
     .regex(/[0-9]/)
     .regex(/[!@#$%^&*]/);
 
-    if(passwordSchema.safeParse(password).success) {
-        return {valid: true, error: ''}
+    const result = passwordSchema.safeParse(password);
+    if(!result.success) {
+        return {valid: false, error: result.error.issues.map(issue => issue.message) };
     } else {
-        return {valid: false, error: ''}
+        return {valid: true, error: []}
     }
 }
 
@@ -52,8 +54,9 @@ export async function register(req: Request, res: Response): Promise<void> {
         return;
     }
 
-    if(!isValidEmail(req.body.email).valid) {
-        res.status(400).send({"message": "email is invalid"});
+    const validEmail = isValidEmail(req.body.email);
+    if(!validEmail.valid) {
+        res.status(400).send({"message": validEmail.error});
         return;
     }
 
@@ -62,8 +65,9 @@ export async function register(req: Request, res: Response): Promise<void> {
         return;
     }
 
-    if(!isValidPassword(req.body.password).valid) {
-        res.status(400).send({"message": "password is invalid"});
+    const validPassword = isValidPassword(req.body.password);
+    if(!validPassword.valid) {
+        res.status(400).send({"message": validPassword.error});
         return;
     }
 
