@@ -1,11 +1,11 @@
 auth functions
-- type ValidationResponse { valid: boolean, error: string }
+- type ValidationResponse { valid: boolean, error: string[] }
 - type AuthTokens { accessToken: string, refreshToken: string }
 - isValidEmail(email: string): ValidationResponse
 - isValidPassword(password: string): ValidationResponse
-- createUser(email: string, password: string): Promise<UserAccount>
+- createUserHandler(email: string, password: string, username: string): Promise<UserAccount>
 - getUserByEmail(email: string): Promise<UserAccount | null>
-- verifyPassword(plaintext: string, hash: string): Promise<boolean>
+- verifyUserByEmail(email: string, password: string): Promise<UserAccount | false>
 - generateTokens(user: UserAccount): AuthTokens
 - validateRefreshToken(token: string): Promise<boolean>
 - invalidateRefreshToken(token: string): Promise<void>
@@ -31,12 +31,9 @@ POST /auth/login
 - validate all required inputs are present
 -- if not all required are present, return 400 response
 - isValidEmail(email)
-- isValidPassword(password)
--- if !isValidEmail || !isValidPassword, return 400 response
-- getUserByEmail(email)
-- if not found, return 401
-- verifyPassword(plaintext, hash)
-- if no match, return 401
+-- if !isValidEmail, return 400 response
+- verifyUserByEmail(email, password)
+- if not found or password mismatch, return 401
 - generateTokens(user)
 - return 200 + user + tokens
 
@@ -84,7 +81,3 @@ POST /auth/reset-password
 - updatePassword(userId, newPassword)
 - invalidatePasswordResetToken(token)
 - return 200
-
-
-
-mucking around

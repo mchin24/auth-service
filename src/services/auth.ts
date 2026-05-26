@@ -2,7 +2,13 @@ import jwt from 'jsonwebtoken';
 import pool from '../db.js';
 import bcrypt from 'bcryptjs';
 import type { UserAccount, ValidationResponse, AuthTokens } from "../types.js"
+
 const PG_UNIQUE_VIOLATION = '23505';
+
+const secret = process.env.JWT_SECRET as string;
+const refreshSecret = process.env.JWT_REFRESH_SECRET as string;
+if (!secret)  throw new Error('JWT_SECRET is not set');
+if (!refreshSecret) throw new Error('JWT_REFRESH_SECRET is not set');
 
 export class DuplicateEmailError extends Error {
     constructor() { super('An account for this email already exists.'); }
@@ -44,15 +50,14 @@ export async function getUserByEmail(email: string): Promise<UserAccount | null>
     }
 }
 
-export async function verifyPassword(email: string, password: string): Promise<boolean> {
+export async function verifyUserByEmail(email: string, password: string): Promise<UserAccount | false> {
     try {
-        const query = `SELECT password_hash FROM users WHERE email = $1`;
+        const query = `SELECT id, email, username, password_hash FROM users WHERE email = $1`;
         const dataset = await pool.query(query, [email]);
-        console.log(dataset);
-        if (dataset.rows.length === 0) {
+        if (!dataset || dataset.rows.length === 0 || !(await bcrypt.compare(password, dataset.rows[0].password_hash))) {
             return false;
         }
-        return await bcrypt.compare(password, dataset.rows[0].password_hash);
+        return { id: dataset.rows[0].id, email: dataset.rows[0].email, username: dataset.rows[0].username };
     } catch (error: any) {
         console.error(error);
         throw new DatabaseError(error);
@@ -61,12 +66,6 @@ export async function verifyPassword(email: string, password: string): Promise<b
 
 export function generateTokens(user: UserAccount): AuthTokens {
     const payload = {userId: user.id, email: user.email, username: user.username};
-
-    const secret = process.env.JWT_SECRET;
-    const refreshSecret = process.env.JWT_REFRESH_SECRET;
-
-    if (!secret) { throw new Error('JWT_SECRET is not set'); }
-    if (!refreshSecret) { throw new Error('JWT_REFRESH_SECRET is not set'); }
 
     const accessToken = jwt.sign(payload, secret, {expiresIn: '15m'});
     const refreshToken = jwt.sign(payload, refreshSecret, {expiresIn: '7d'});
