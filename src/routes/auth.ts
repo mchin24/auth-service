@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { requireAuth } from '../middleware/auth.js';
-import {createUserAccount, getMe} from '../controllers/auth.js';
+import { register, getMe} from '../controllers/auth.js';
 
 const router = Router();
 
@@ -17,7 +17,7 @@ router.get('/me', async (req, res) => {
     res.status(200).send(userAccount);
 });
 
-router.post('/register', createUserAccount)
+router.post('/register', register)
 
 router.post('/auth/login', async (req, res) => {
     res.status(501).send();

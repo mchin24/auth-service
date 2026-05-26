@@ -26,7 +26,7 @@ export async function getMe(access_token: string): Promise<UserAccount | null> {
     return userAccount;
 }
 
-export async function createUserAccount(req: Request, res: Response): Promise<void> {
+export async function register(req: Request, res: Response): Promise<void> {
     if(!req.body) {
         res.contentType('application/json');
         res.status(400).send({"message": "no message body"});
