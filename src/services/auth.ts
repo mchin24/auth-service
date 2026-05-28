@@ -71,7 +71,7 @@ export async function generateTokens(user: UserAccount): Promise<AuthTokens> {
     const refreshToken = jwt.sign(payload, refreshSecret, {expiresIn: '7d'});
 
     try {
-        const dbResult = pool.query(
+        const dbResult = await pool.query(
             `INSERT INTO refresh_tokens ( token, user_id, expires_at ) VALUES ($1, $2, $3);`,
             [refreshToken, user.id,  new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)]);
     } catch (error: any) {
