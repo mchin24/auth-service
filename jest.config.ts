@@ -1,4 +1,8 @@
 import { createDefaultEsmPreset } from "ts-jest";
+import dotenv from "dotenv";
+
+dotenv.config();
+dotenv.config({ path: `.env.test`, override: true });
 
 const defaultEsmPreset = createDefaultEsmPreset();
 
