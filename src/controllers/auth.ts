@@ -75,7 +75,7 @@ export async function register(req: Request, res: Response): Promise<void> {
         const email= req.body.email;
         const password=req.body.password;
         const userAccount = await createUserHandler(email, password, email);
-        const tokens: AuthTokens = generateTokens(userAccount);
+        const tokens: AuthTokens = await generateTokens(userAccount);
 
         res.status(201).send({user: userAccount, tokens});
     } catch (error) {
@@ -114,7 +114,7 @@ export async function login(req: Request, res: Response): Promise<void> {
             return;
         }
 
-        const tokens: AuthTokens = generateTokens(userAccount);
+        const tokens: AuthTokens = await generateTokens(userAccount);
 
         res.status(200).send({user: userAccount, tokens});
     } catch (error) {

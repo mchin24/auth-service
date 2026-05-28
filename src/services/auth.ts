@@ -64,11 +64,21 @@ export async function verifyUserByEmail(email: string, password: string): Promis
     }
 }
 
-export function generateTokens(user: UserAccount): AuthTokens {
+export async function generateTokens(user: UserAccount): Promise<AuthTokens> {
     const payload = {userId: user.id, email: user.email, username: user.username};
 
     const accessToken = jwt.sign(payload, secret, {expiresIn: '15m'});
     const refreshToken = jwt.sign(payload, refreshSecret, {expiresIn: '7d'});
+
+    try {
+        const dbResult = pool.query(
+            `INSERT INTO refresh_tokens ( token, user_id, expires_at ) VALUES ($1, $2, $3);`,
+            [refreshToken, user.id,  new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)]);
+    } catch (error: any) {
+        console.error(error);
+        throw new DatabaseError(error);
+    }
+
     return {accessToken, refreshToken};
 }
 
