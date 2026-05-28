@@ -5,7 +5,7 @@ import {
     createUserHandler,
     DuplicateEmailError,
     generateTokens,
-    getMeHandler,
+    getMeHandler, invalidateRefreshToken, validateRefreshToken,
     verifyUserByEmail
 } from "../services/auth.js";
 
@@ -75,7 +75,7 @@ export async function register(req: Request, res: Response): Promise<void> {
         const email= req.body.email;
         const password=req.body.password;
         const userAccount = await createUserHandler(email, password, email);
-        const tokens: AuthTokens = generateTokens(userAccount);
+        const tokens: AuthTokens = await generateTokens(userAccount);
 
         res.status(201).send({user: userAccount, tokens});
     } catch (error) {
@@ -114,10 +114,31 @@ export async function login(req: Request, res: Response): Promise<void> {
             return;
         }
 
-        const tokens: AuthTokens = generateTokens(userAccount);
+        const tokens: AuthTokens = await generateTokens(userAccount);
 
         res.status(200).send({user: userAccount, tokens});
     } catch (error) {
+        console.error(error);
+        res.status(500).send();
+    }
+}
+
+export async function logout(req: Request, res: Response): Promise<void> {
+    res.contentType('application/json');
+
+    if(!req.body || !req.body.refreshToken) {
+        res.status(400).send({"message": ["missing required field: refreshToken"]});
+        return;
+    }
+
+    try {
+        if(!(await validateRefreshToken(req.body.refreshToken))) {
+            res.status(401).send({"message": ["invalid credentials"]});
+            return;
+        }
+        await invalidateRefreshToken(req.body.refreshToken);
+        res.status(204).send();
+    } catch (error: any) {
         console.error(error);
         res.status(500).send();
     }

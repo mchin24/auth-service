@@ -1,20 +1,26 @@
 # Progress
 
 ## What Works
-- Project structure initialized
-- Testing environment set up
-- `index.ts` syntax error fixed
-- `auth.test.ts` import error fixed (using `.js` extension for ESM)
-- Production source moved to `src/`
-- Test files moved to `tests/` and excluded from `tsc` build
-- Jest configuration updated for ESM support (using `ts-jest` ESM preset)
-- Docker and npm scripts updated with `NODE_OPTIONS=--experimental-vm-modules` for ESM support
-- `docs/api-implementation.txt` updated with full pseudocode for all 7 endpoints and complete auth functions/types list
+- Project structure and build tooling
+- ESM/TypeScript configuration for both Jest and Cucumber
+- Docker Compose setup with `dev-shared` network
+- `GET /health` endpoint
+- `POST /auth/register` — full implementation with validation, bcrypt, DB insert, token generation
+- `POST /auth/login` — full implementation with credential verification and token generation
+- `POST /auth/logout` — full implementation with refresh token validation and invalidation
+- `generateTokens` — async, writes refresh token to `refresh_tokens` table
+- `validateRefreshToken` — JWT verification + DB lookup with expiry filter
+- `invalidateRefreshToken` — deletes token from DB
+- `src/db/schema.sql` — documents `users` and `refresh_tokens` tables
 
 ## Left to Build
-- `GET /health/live` and `GET /health/ready` endpoints
-- Auth endpoints: register, login, logout, refresh, me, forgot-password, reset-password
+- `clearStaleRefreshTokens` service function
+- `node-cron` setup in `index.ts` (run at startup + on schedule)
+- `POST /auth/refresh` — token rotation
+- `GET /auth/me` — return user from access token
+- `POST /auth/forgot-password` — generate reset token, enqueue email job
+- `POST /auth/reset-password` — validate reset token, update password
 
 ## Current Status
-- `/health/live` + `/health/ready` planned, not yet implemented
-- Auth endpoint pseudocode finalized, implementation not started
+- register, login, logout done; refresh, me, forgot-password, reset-password are stubs
+- `clearStaleRefreshTokens` + cron wiring deferred to next session
