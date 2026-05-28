@@ -2,9 +2,9 @@
 
 ## Implementation Checklist
 
-- [ ] `POST /auth/register`
-- [ ] `POST /auth/login`
-- [ ] `POST /auth/logout`
+- [x] `POST /auth/register`
+- [x] `POST /auth/login`
+- [x] `POST /auth/logout`
 - [ ] `POST /auth/refresh`
 - [ ] `GET  /auth/me`
 - [ ] `POST /auth/forgot-password`
@@ -26,19 +26,25 @@ Create a new user account.
 }
 ```
 
+> **Password requirements:** min 8 characters, at least one uppercase letter, one lowercase letter, one digit, and one special character (`!@#$%^&*`).
+
 **Response `201`**
 ```json
 {
-  "id": 1,
-  "username": "string",
-  "email": "user@example.com",
-  "accessToken": "string",
-  "refreshToken": "string"
+  "user": {
+    "id": 1,
+    "username": "string",
+    "email": "user@example.com"
+  },
+  "tokens": {
+    "accessToken": "string",
+    "refreshToken": "string"
+  }
 }
 ```
 
 **Errors**
-- `400` — missing or invalid fields
+- `400` — missing or invalid fields (including password requirements not met)
 - `409` — email already in use
 
 ---
@@ -58,8 +64,15 @@ Authenticate and receive tokens.
 **Response `200`**
 ```json
 {
-  "accessToken": "string",
-  "refreshToken": "string"
+  "user": {
+    "id": 1,
+    "username": "string",
+    "email": "user@example.com"
+  },
+  "tokens": {
+    "accessToken": "string",
+    "refreshToken": "string"
+  }
 }
 ```
 

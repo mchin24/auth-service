@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { requireAuth } from '../middleware/auth.js';
-import { register, login, getMe} from '../controllers/auth.js';
+import { register, login, logout, getMe} from '../controllers/auth.js';
 
 const router = Router();
 
@@ -14,9 +14,7 @@ router.post('/register', register)
 
 router.post('/login', login)
 
-router.post('/logout', async (req, res) => {
-    res.status(501).send();
-})
+router.post('/logout', logout)
 
 router.post('/refresh', async (req, res) => {
     res.status(501).send();
