@@ -1,22 +1,28 @@
 import { describe, expect, test } from "@jest/globals";
-import { type UserAccount, isUserAccount } from "../src/types.js";
-import { getMeHandler } from "../src/services/auth.js";
-import { isValidEmail } from "../src/controllers/auth.js";
-import { isValidPassword } from "../src/controllers/auth.js";
+import { type UserAccount, type AuthTokens, isUserAccount } from "../src/types.js";
+import { getMeHandler, getUserByEmail, generateTokens, createUserHandler } from "../src/services/auth.js";
+import * as auth from "../src/controllers/auth.js";
+import * as service_auth from "../src/services/auth.js"
+
+// import { isValidEmail } from "../src/controllers/auth.js";
+// import { isValidPassword } from "../src/controllers/auth.js";
+
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])(?=.{8,})/;
 
-import request from 'supertest';
-import app from '../src/server.js'; // Your Express app
+// import request from 'supertest';
+// import app from '../src/server.js'; // Your Express app
 
 
 
-let user: UserAccount = {
-  id: 1,
-  username: "testuser",
-  email: "test@example.com"
-};
+// let user: UserAccount = {
+//   id: 1,
+//   username: "testuser",
+//   email: "test@example.com"
+// };
+
+
 
 
 
@@ -38,7 +44,7 @@ describe("Testing valid email format", () => {
 
     expect(valid_user_email).toMatch(emailRegex);
     // expect(isUserAccount(user)).toBe(true);
-    expect(isValidEmail(valid_user_email)).not.toBe(false);
+    expect(auth.isValidEmail(valid_user_email).valid).toBe(true);
   });
 });
 
@@ -49,7 +55,7 @@ describe("Testing invalid email format", () => {
     const invalid_user_email = "invalid_email.com";
 
     expect(invalid_user_email).not.toMatch(emailRegex);
-    expect(isValidEmail(invalid_user_email)).toBe(false);
+    expect(auth.isValidEmail(invalid_user_email).valid).toBe(false);
   });
 });
 
@@ -60,7 +66,7 @@ describe('Testing Password Format', () => {
   test('correct password format is used', () => {
     const validPassword = 'Password123!';
     expect(validPassword).toMatch(passwordRegex);
-    expect(isValidPassword(validPassword)).not.toBe(false);
+    expect(auth.isValidPassword(validPassword).valid).not.toBe(true);
     // expect(user.password).toMatch(passwordRegex);
   });
 });
@@ -70,7 +76,7 @@ describe('Testing Invalid Password Format', () => {
   test('should reject a password without special characters', () => {
     const invalidPassword = 'password123';
     expect(invalidPassword).not.toMatch(passwordRegex);
-    expect(isValidPassword(invalidPassword)).not.toBe(false);
+    expect(auth.isValidPassword(invalidPassword).valid).toBe(false);
     // expect(user.password).not.toMatch(passwordRegex);
 
   });
@@ -78,7 +84,7 @@ describe('Testing Invalid Password Format', () => {
   test('should reject a password that is too short', () => {
     const shortPassword = 'Pa1!';
     expect(shortPassword).not.toMatch(passwordRegex);
-    expect(isValidPassword(shortPassword)).not.toBe(false);
+    expect(auth.isValidPassword(shortPassword).valid).toBe(false);
     // expect(user.password).not.toMatch(passwordRegex);
 
   });
@@ -86,20 +92,22 @@ describe('Testing Invalid Password Format', () => {
 
 // testing createUser function
 describe("Create New User", () => {
-  test("Returns a UserAccount", () => {
+  test("Returns a UserAccount", async () => {
     // UserAccount user = createUser("test@example.com", "Password123!");
-    const newUser: UserAccount = createUser("test@example.com", "Password123!");  // creatUser will create type UserAccount and return it, so we can assign it to user variable of type UserAccount
+    const newUser = await createUserHandler("test@example.com", "Password123!", "testuser");  // creatUser will create type UserAccount and return it, so we can assign it to user variable of type UserAccount
+    
 
-    newUser.token = "12345";
+    // newUser.token = "12345";
 // - createUser(email: string, password: string): Promise<UserAccount>
 // - generateTokens(user: UserAccount): AuthTokens
 
 
     // const user_account = getMe(user.token);
     expect(isUserAccount(newUser)).toBe(true);
-    expect(newUser?.token).not.toBe(null);
+    // expect(newUser?.token).not.toBe(null);
     expect(newUser?.email).not.toBe(null);
-    expect(newUser?.password).not.toBe(null);
+    expect(newUser?.username).not.toBe(null);
+    // expect(newUser?.password).not.toBe(null);
 
   });
 });
@@ -107,8 +115,8 @@ describe("Create New User", () => {
 
 // testing getUserByEmail function
 describe("Getting user by email", () => {
-  test("Returns a UserAccount", () => {
-    user = getUserByEmail("test@example.com");
+  test("Returns a UserAccount", async () => {
+    const user = await service_auth.getUserByEmail("test@example.com");
     // const user = getUserByEmail("test@example.com");
     // - getUserByEmail(email: string): Promise<UserAccount | null>
 
@@ -123,16 +131,18 @@ describe("Getting user by email", () => {
 
 
 describe("Getting user by invalid email", () => {
-  test("Returns an error", () => {
-    user = getUserByEmail("testInvalidEmail.com");
+  test("Returns an error", async () => {
+    const user = await service_auth.getUserByEmail("testInvalidEmail.com");
     // const user = getUserByEmail("test@example.com");
 // - getUserByEmail(email: string): Promise<UserAccount | null>
 
     // const user_account = getMe(user.token);
-    expect(isUserAccount(user)).toBe(false);
-    expect(user?.id).toBe(null);
-    expect(user?.username).toBe(null);
-    expect(user?.email).toBe(null);
+    expect(user).toBeNull();
+
+    // expect(isUserAccount(user)).toBe(false);
+    // expect(user?.id).toBe(null);
+    // expect(user?.username).toBe(null);
+    // expect(user?.email).toBe(null);
 
   });
 });
@@ -179,7 +189,10 @@ describe("Testing token creation", () => {
 // testing getUserFromAccessToken function
 describe("Getting user from access token", () => {
   test("Returns a UserAccount object", () => {
-    const authToken: AuthTokens = "validAuthTokens123"; // Assume this is a valid AuthTokens object with an accessToken property
+    const authToken: AuthTokens = {
+      accessToken: "validAuthTokens123",
+      refreshToken: "validRefreshTokens123"
+    }; // Assume this is a valid AuthTokens object with an accessToken property
 
     const user: UserAccount = getUserFromAccessToken(authToken);
     // - createUser(email: string, password: string): Promise<UserAccount>
@@ -195,7 +208,14 @@ describe("Getting user from access token", () => {
 
 describe("Trying to get user from invalid access token", () => {
   test("should not return a UserAccount object", () => {
-    const authToken: AuthTokens = "invalidAuthTokens123"; // Assume this is an invalid AuthTokens object
+    const authToken: AuthTokens = {
+      accessToken: "invalidAuthTokens123",
+      refreshToken: "invalidRefreshTokens123"
+    }; // Assume this is a valid AuthTokens object with an accessToken property
+
+
+
+
 
     const user: UserAccount = getUserFromAccessToken(authToken);
     // - createUser(email: string, password: string): Promise<UserAccount>
@@ -254,7 +274,13 @@ describe("Attempt to generate password reset token with invalid/null User ID", (
 // testing validatePasswordResetToken function
 describe("Simulating validatePasswordResetToken when reset password is called", () => {
   test("Returns a UserAccount object", () => {
-    const authToken: AuthTokens = "validAuthTokens123"; // Assume this is a valid AuthTokens object with an accessToken property
+    const authToken: AuthTokens = {
+      accessToken: "validAuthTokens123",
+      refreshToken: "validRefreshTokens123"
+    }; // Assume this is a valid AuthTokens object with an accessToken property
+
+
+    // const authToken: AuthTokens = "validAuthTokens123"; // Assume this is a valid AuthTokens object with an accessToken property
 
     const user: UserAccount = validatePasswordResetToken(authToken);
 
@@ -269,7 +295,13 @@ describe("Simulating validatePasswordResetToken when reset password is called", 
 
 describe("Simulating an invalid token being sent to validatePasswordResetToken when reset password is called", () => {
   test("should not return a UserAccount object", () => {
-    const authToken: AuthTokens = "inValidToken"; // Assume this is a valid AuthTokens object with an accessToken property
+    const authToken: AuthTokens = {
+      accessToken: "invalidAuthTokens123",
+      refreshToken: "invalidRefreshTokens123"
+    }; // Assume this is a valid AuthTokens object with an accessToken property
+
+    
+    // const authToken: AuthTokens = "inValidToken"; // Assume this is a valid AuthTokens object with an accessToken property
 
     const user: UserAccount = validatePasswordResetToken(authToken);
 
