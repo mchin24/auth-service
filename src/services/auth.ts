@@ -93,9 +93,7 @@ export async function validateRefreshToken(token: string): Promise<boolean> {
         const dbResult = await pool.query(
             `SELECT token, user_id, expires_at FROM refresh_tokens WHERE token = $1 and expires_at > NOW()`,
             [token]);
-        if(dbResult.rows.length === 0) {
-            return false;
-        }
+        if(dbResult.rows.length === 0) return false;
         return true;
     } catch (error: any) {
         console.error(error);
@@ -105,8 +103,7 @@ export async function validateRefreshToken(token: string): Promise<boolean> {
 
 export async function invalidateRefreshToken(token: string): Promise<void> {
     try {
-        const dbResult = await pool.query(
-            `DELETE FROM refresh_tokens WHERE token = $1`, [token]);
+        await pool.query(`DELETE FROM refresh_tokens WHERE token = $1`, [token]);
     } catch (error: any) {
         console.error(error);
         throw new DatabaseError();
