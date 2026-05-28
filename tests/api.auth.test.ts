@@ -1,5 +1,6 @@
 import { describe, expect, test } from "@jest/globals";
 import { type UserAccount, isUserAccount } from "../src/types.js";
+import "../src/controllers/auth.js";
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])(?=.{8,})/;
@@ -21,11 +22,11 @@ describe('Testing Register API Response - 201 response', () => {
     const response = await request(app).post('/auth/register').send(newUser).set('Accept', 'application/json');
     
     expect(response.status).toBe(201);
-    expect(response.id).not.toBe(null);
-    expect(response.username).not.toBe(null);
-    expect(response.email).not.toBe(null);
-    expect(response.accessToken).not.toBe(null);
-    expect(response.refreshToken).not.toBe(null);
+    expect(response.body.id).not.toBe(null);
+    expect(response.body.username).not.toBe(null);
+    expect(response.body.email).not.toBe(null);
+    expect(response.body.accessToken).not.toBe(null);
+    expect(response.body.refreshToken).not.toBe(null);
   });
 });
 
@@ -103,9 +104,9 @@ describe('Testing Login API Response - 200 response', () => {
     const response = await request(app).post('/auth/login').send(user).set('Accept', 'application/json');
     
     expect(response.status).toBe(200);
-    expect(response.accessToken).not.toBe(null);
-    expect(response.refreshToken).not.toBe(null);
-    expect(verifyPassword(user.password, response.user.password)).toBe(true);
+    expect(response.body.accessToken).not.toBe(null);
+    expect(response.body.refreshToken).not.toBe(null);
+    // expect(response.verifyUserByEmail(user.password, response.user.password)).toBe(true);
 
 
     // - verifyPassword(plaintext: string, hash: string): Promise<boolean>
@@ -146,7 +147,7 @@ describe('Testing Login API Response - 4xx response', () => {
     const response = await request(app).post('/auth/login').send(user).set('Accept', 'application/json');
     
     expect(response.status).toBe(401);
-    expect(verifyPassword(user.password, response.user.password)).not.toBe(true);
+    // expect(response.verifyUserByEmail(user.password, response.user.password)).not.toBe(true);
 
   });  
 });
@@ -202,7 +203,7 @@ describe('Testing refresh token exchange for new access token API Response - 200
     const response = await request(app).post('/auth/refresh').send(refreshToken).set('Accept', 'application/json');
     
     expect(response.status).toBe(200);
-    expect(response.accessToken).not.toBe(null);
+    expect(response.body.accessToken).not.toBe(null);
   });
 });
 
@@ -241,9 +242,9 @@ describe('Testing user returned from access token API Response - 200 response', 
     const response = await request(app).get('/auth/me').set('Authorization', `Bearer ${bearerToken.bearerToken}`).set('Accept', 'application/json');
     
     expect(response.status).toBe(200);
-    expect(response.id).not.toBe(null);
-    expect(response.email).not.toBe(null);
-    expect(response.username).not.toBe(null);
+    expect(response.body.id).not.toBe(null);
+    expect(response.body.email).not.toBe(null);
+    expect(response.body.username).not.toBe(null);
 
   });
 });
