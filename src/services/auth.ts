@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken';
 import pool from '../db.js';
 import bcrypt from 'bcryptjs';
-import type { UserAccount, ValidationResponse, AuthTokens } from "../types.js"
+import type { UserAccount, AuthTokens } from "../types.js"
 
 const PG_UNIQUE_VIOLATION = '23505';
 
@@ -71,7 +71,7 @@ export async function generateTokens(user: UserAccount): Promise<AuthTokens> {
     const refreshToken = jwt.sign(payload, refreshSecret, {expiresIn: '7d'});
 
     try {
-        const dbResult = await pool.query(
+        await pool.query(
             `INSERT INTO refresh_tokens ( token, user_id, expires_at ) VALUES ($1, $2, $3);`,
             [refreshToken, user.id,  new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)]);
     } catch (error: any) {
@@ -80,6 +80,37 @@ export async function generateTokens(user: UserAccount): Promise<AuthTokens> {
     }
 
     return {accessToken, refreshToken};
+}
+
+export async function validateRefreshToken(token: string): Promise<boolean> {
+    try {
+        jwt.verify(token, refreshSecret);
+    } catch (error) {
+        return false;
+    }
+
+    try {
+        const dbResult = await pool.query(
+            `SELECT token, user_id, expires_at FROM refresh_tokens WHERE token = $1 and expires_at > NOW()`,
+            [token]);
+        if(dbResult.rows.length === 0) {
+            return false;
+        }
+        return true;
+    } catch (error: any) {
+        console.error(error);
+        throw new DatabaseError();
+    }
+}
+
+export async function invalidateRefreshToken(token: string): Promise<void> {
+    try {
+        const dbResult = await pool.query(
+            `DELETE FROM refresh_tokens WHERE token = $1`, [token]);
+    } catch (error: any) {
+        console.error(error);
+        throw new DatabaseError();
+    }
 }
 
 
