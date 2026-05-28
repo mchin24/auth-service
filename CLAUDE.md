@@ -37,13 +37,16 @@ This is a Node.js/Express auth microservice written in TypeScript (ESM). The int
 - `POST /auth/reset-password` — complete password reset with token
 
 **Key files:**
-- `src/server.ts` — Express app and route definitions (most routes are stubs)
-- `src/controllers/auth.ts` — controller logic (currently only `getMe` is stubbed)
+- `src/server.ts` — Express app setup and router mounting
+- `src/routes/auth.ts` — route definitions (refresh, me, forgot-password, reset-password are stubs)
+- `src/controllers/auth.ts` — input validation and request handling (register, login, logout implemented; getMe is a stub)
+- `src/services/auth.ts` — business logic and DB queries
 - `src/types.ts` — `UserAccount` type and `isUserAccount` type guard
+- `src/db/schema.sql` — PostgreSQL schema (users and refresh_tokens tables)
 - `tests/auth.test.ts` — Jest tests for validation logic and auth controller
-- `docs/features/` — Cucumber BDD feature files and step definitions
+- `tests/features/` — Cucumber BDD feature files and step definitions
 
-**Database:** PostgreSQL via `pg`. Connection is expected via `DATABASE_URL` env var (see `.env`).
+**Database:** PostgreSQL via `pg`. Connection is configured via `AUTHDB_USER`, `AUTHDB_PASSWORD`, `AUTHDB_HOST`, `AUTHDB_PORT`, and `AUTHDB_DB` env vars (see `.env`).
 
 **ESM quirks:** The project uses `"type": "module"`. Imports within `src/` must use `.js` extensions even for `.ts` source files. Jest runs with `NODE_OPTIONS=--experimental-vm-modules` and ts-jest's ESM preset to handle this. BDD tests use `NODE_OPTIONS='--import tsx'` for the same reason.
 

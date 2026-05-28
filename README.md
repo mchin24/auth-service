@@ -4,7 +4,7 @@
 
 - [x] `POST /auth/register`
 - [x] `POST /auth/login`
-- [ ] `POST /auth/logout`
+- [x] `POST /auth/logout`
 - [ ] `POST /auth/refresh`
 - [ ] `GET  /auth/me`
 - [ ] `POST /auth/forgot-password`
