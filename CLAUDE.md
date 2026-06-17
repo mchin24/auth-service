@@ -38,8 +38,8 @@ This is a Node.js/Express auth microservice written in TypeScript (ESM). The int
 
 **Key files:**
 - `src/server.ts` — Express app setup and router mounting
-- `src/routes/auth.ts` — route definitions (refresh, me, forgot-password, reset-password are stubs)
-- `src/controllers/auth.ts` — input validation and request handling (register, login, logout implemented; getMe is a stub)
+- `src/routes/auth.ts` — route definitions (me, forgot-password, reset-password are stubs)
+- `src/controllers/auth.ts` — input validation and request handling (register, login, logout, refreshToken implemented; getMe is a stub)
 - `src/services/auth.ts` — business logic and DB queries
 - `src/types.ts` — `UserAccount` type and `isUserAccount` type guard
 - `src/db/schema.sql` — PostgreSQL schema (users and refresh_tokens tables)
