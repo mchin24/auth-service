@@ -2,6 +2,7 @@ export type UserAccount = {
     id: number;
     username: string;
     email: string;
+    createdAt?: Date;
 };
 
 export type ValidationResponse = {

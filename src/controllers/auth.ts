@@ -34,12 +34,23 @@ export function isValidPassword(password: string): ValidationResponse {
     }
 }
 
-export async function getMe(access_token: string): Promise<UserAccount | null> {
-    const userAccount = await getMeHandler(access_token);
-    if(!userAccount) {
-        return null;
+export async function getMe(req: Request, res: Response): Promise<void> {
+    res.contentType('application/json');
+    const user: UserAccount = req.user as UserAccount;
+
+    try {
+        const userAccount= await getMeHandler(user.id);
+        if(!userAccount) {
+            res.status(404).send({'message':[`user not found`]});
+            return;
+        }
+
+        res.status(200).send(userAccount);
+    } catch (error: any) {
+        console.error(error);
+        res.status(500).send();
+        return;
     }
-    return userAccount;
 }
 
 export async function register(req: Request, res: Response): Promise<void> {

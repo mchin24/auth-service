@@ -65,7 +65,7 @@ export async function verifyUserByEmail(email: string, password: string): Promis
 }
 
 export async function generateTokens(user: UserAccount): Promise<AuthTokens> {
-    const payload = {userId: user.id, email: user.email, username: user.username};
+    const payload = {id: user.id, email: user.email, username: user.username};
 
     const accessToken = jwt.sign(payload, secret, {expiresIn: '15m'});
     const refreshToken = jwt.sign(payload, refreshSecret, {expiresIn: '7d'});
@@ -114,6 +114,18 @@ export async function invalidateRefreshToken(token: string): Promise<void> {
 }
 
 
-export async function getMeHandler(access_token: string): Promise<UserAccount | null> {
-    return { id: 123456, username: 'dummy', email: 'dummy@example.com' };
+export async function getMeHandler(userId: number): Promise<UserAccount | null> {
+    try {
+        const dataset = await pool.query(
+            `SELECT id, username, email, created_at 
+            FROM users 
+            WHERE id = $1`, [userId]);
+
+        if(dataset.rows.length === 0) return null;
+
+        return { id: userId, username: dataset.rows[0].username, email: dataset.rows[0].email, createdAt: dataset.rows[0].created_at };
+    } catch (error: any) {
+        console.error(error);
+        throw new DatabaseError();
+    }
 }
