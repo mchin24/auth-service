@@ -34,12 +34,23 @@ export function isValidPassword(password: string): ValidationResponse {
     }
 }
 
-export async function getMe(access_token: string): Promise<UserAccount | null> {
-    const userAccount = await getMeHandler(access_token);
-    if(!userAccount) {
-        return null;
+export async function getMe(req: Request, res: Response): Promise<void> {
+    res.contentType('application/json');
+    const user: UserAccount = req.user as UserAccount;
+
+    try {
+        const userAccount= await getMeHandler(user.id);
+        if(!userAccount) {
+            res.status(404).send({'message':[`user not found`]});
+            return;
+        }
+
+        res.status(200).send(userAccount);
+    } catch (error: any) {
+        console.error(error);
+        res.status(500).send();
+        return;
     }
-    return userAccount;
 }
 
 export async function register(req: Request, res: Response): Promise<void> {
@@ -132,7 +143,8 @@ export async function logout(req: Request, res: Response): Promise<void> {
     }
 
     try {
-        if(!(await validateRefreshToken(req.body.refreshToken))) {
+        const user: false | UserAccount = await validateRefreshToken(req.body.refreshToken);
+        if(!(user)) {
             res.status(401).send({"message": ["invalid credentials"]});
             return;
         }
@@ -142,4 +154,26 @@ export async function logout(req: Request, res: Response): Promise<void> {
         console.error(error);
         res.status(500).send();
     }
+}
+
+export async function refreshToken(req: Request, res: Response): Promise<void> {
+    res.contentType('application/json');
+    const refreshSchema = z.object({
+        refreshToken: z.string().min(1, 'refreshToken is required')
+    });
+    const result = refreshSchema.safeParse(req.body);
+    if(!result.success) {
+        res.status(400).send({"message": ['missing required field: refreshToken'] });
+        return;
+    }
+
+    const user: false | UserAccount = await validateRefreshToken(req.body.refreshToken);
+    if(!(user)) {
+        res.status(401).send({"message": ["invalid credentials"]});
+        return;
+    }
+
+    const tokens = await generateTokens(user);
+
+    res.status(200).send({accessToken: tokens.accessToken});
 }
