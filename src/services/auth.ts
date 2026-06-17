@@ -82,7 +82,7 @@ export async function generateTokens(user: UserAccount): Promise<AuthTokens> {
     return {accessToken, refreshToken};
 }
 
-export async function validateRefreshToken(token: string): Promise<boolean> {
+export async function validateRefreshToken(token: string): Promise<UserAccount | false> {
     try {
         jwt.verify(token, refreshSecret);
     } catch (error) {
@@ -91,10 +91,13 @@ export async function validateRefreshToken(token: string): Promise<boolean> {
 
     try {
         const dbResult = await pool.query(
-            `SELECT token, user_id, expires_at FROM refresh_tokens WHERE token = $1 and expires_at > NOW()`,
+            `SELECT rt.token, rt.user_id, rt.expires_at, u.email, u.username 
+            FROM refresh_tokens rt JOIN
+            users u ON rt.user_id = u.id
+            WHERE rt.token = $1 and rt.expires_at > NOW()`,
             [token]);
         if(dbResult.rows.length === 0) return false;
-        return true;
+        return {id: dbResult.rows[0].user_id, email: dbResult.rows[0].email, username: dbResult.rows[0].username};
     } catch (error: any) {
         console.error(error);
         throw new DatabaseError();
