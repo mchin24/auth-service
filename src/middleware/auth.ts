@@ -13,7 +13,7 @@ declare global {
 export function requireAuth(req: Request, res: Response, next: NextFunction) {
     const header = req.headers.authorization;
     if(!header?.startsWith('Bearer ')) {
-        res.status(401).send('Not authorized');
+        res.status(401).send('Invalid or missing token.');
         return;
     }
 
@@ -26,6 +26,6 @@ export function requireAuth(req: Request, res: Response, next: NextFunction) {
         req.user = payload;
         next();
     } catch (error) {
-        res.status(401).send('Invalid or expired token.');
+        res.status(401).send('Invalid or missing token.');
     }
 }

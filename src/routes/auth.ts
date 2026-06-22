@@ -1,31 +1,25 @@
 import { Router } from 'express';
 import { requireAuth } from '../middleware/auth.js';
-import { register, login, logout, getMe} from '../controllers/auth.js';
+import {register, login, logout, getMe, refreshToken} from '../controllers/auth.js';
 
 const router = Router();
 
-router.get('/me', async (req, res) => {
-    const userAccount = await getMe('54321');
+router.get('/me', requireAuth, getMe);
 
-    res.status(200).send(userAccount);
-});
+router.post('/register', register);
 
-router.post('/register', register)
+router.post('/login', login);
 
-router.post('/login', login)
+router.post('/logout', logout);
 
-router.post('/logout', logout)
-
-router.post('/refresh', async (req, res) => {
-    res.status(501).send();
-})
+router.post('/refresh', refreshToken);
 
 router.post('/forgot-password', async (req, res) => {
     res.status(501).send();
-})
+});
 
 router.post('/reset-password', async (req, res) => {
     res.status(501).send();
-})
+});
 
 export default router;

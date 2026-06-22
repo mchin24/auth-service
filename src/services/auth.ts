@@ -65,7 +65,7 @@ export async function verifyUserByEmail(email: string, password: string): Promis
 }
 
 export async function generateTokens(user: UserAccount): Promise<AuthTokens> {
-    const payload = {userId: user.id, email: user.email, username: user.username};
+    const payload = {id: user.id, email: user.email, username: user.username};
 
     const accessToken = jwt.sign(payload, secret, {expiresIn: '15m'});
     const refreshToken = jwt.sign(payload, refreshSecret, {expiresIn: '7d'});
@@ -82,7 +82,7 @@ export async function generateTokens(user: UserAccount): Promise<AuthTokens> {
     return {accessToken, refreshToken};
 }
 
-export async function validateRefreshToken(token: string): Promise<boolean> {
+export async function validateRefreshToken(token: string): Promise<UserAccount | false> {
     try {
         jwt.verify(token, refreshSecret);
     } catch (error) {
@@ -91,10 +91,13 @@ export async function validateRefreshToken(token: string): Promise<boolean> {
 
     try {
         const dbResult = await pool.query(
-            `SELECT token, user_id, expires_at FROM refresh_tokens WHERE token = $1 and expires_at > NOW()`,
+            `SELECT rt.token, rt.user_id, rt.expires_at, u.email, u.username 
+            FROM refresh_tokens rt JOIN
+            users u ON rt.user_id = u.id
+            WHERE rt.token = $1 and rt.expires_at > NOW()`,
             [token]);
         if(dbResult.rows.length === 0) return false;
-        return true;
+        return {id: dbResult.rows[0].user_id, email: dbResult.rows[0].email, username: dbResult.rows[0].username};
     } catch (error: any) {
         console.error(error);
         throw new DatabaseError();
@@ -111,6 +114,18 @@ export async function invalidateRefreshToken(token: string): Promise<void> {
 }
 
 
-export async function getMeHandler(access_token: string): Promise<UserAccount | null> {
-    return { id: 123456, username: 'dummy', email: 'dummy@example.com' };
+export async function getMeHandler(userId: number): Promise<UserAccount | null> {
+    try {
+        const dataset = await pool.query(
+            `SELECT id, username, email, created_at 
+            FROM users 
+            WHERE id = $1`, [userId]);
+
+        if(dataset.rows.length === 0) return null;
+
+        return { id: userId, username: dataset.rows[0].username, email: dataset.rows[0].email, createdAt: dataset.rows[0].created_at };
+    } catch (error: any) {
+        console.error(error);
+        throw new DatabaseError();
+    }
 }

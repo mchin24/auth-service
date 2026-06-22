@@ -1,5 +1,4 @@
 import express from 'express';
-import type {UserAccount} from './types.js';
 import authRouter from './routes/auth.js';
 
 const app = express();
