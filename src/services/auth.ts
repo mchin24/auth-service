@@ -1,6 +1,7 @@
 import jwt from 'jsonwebtoken';
 import pool from '../db.js';
 import bcrypt from 'bcryptjs';
+import crypto from 'crypto';
 import type { UserAccount, AuthTokens } from "../types.js"
 
 const PG_UNIQUE_VIOLATION = '23505';
@@ -113,6 +114,63 @@ export async function invalidateRefreshToken(token: string): Promise<void> {
     }
 }
 
+
+export async function generatePasswordResetToken(email: string): Promise<{ token: string; userId: number } | null> {
+    const userResult = await pool.query(`SELECT id FROM users WHERE email = $1`, [email]);
+    if (userResult.rows.length === 0) return null;
+
+    const userId = userResult.rows[0].id;
+    const token = crypto.randomBytes(32).toString('hex');
+    const expiresAt = new Date(Date.now() + 60 * 60 * 1000);
+
+    try {
+        await pool.query(
+            `INSERT INTO password_reset_tokens (token, user_id, expires_at) VALUES ($1, $2, $3)`,
+            [token, userId, expiresAt]
+        );
+    } catch (error: any) {
+        console.error(error);
+        throw new DatabaseError(error);
+    }
+
+    return { token, userId };
+}
+
+export async function validatePasswordResetToken(token: string): Promise<UserAccount | false> {
+    try {
+        const result = await pool.query(
+            `SELECT prt.user_id, u.email, u.username
+             FROM password_reset_tokens prt
+             JOIN users u ON prt.user_id = u.id
+             WHERE prt.token = $1 AND prt.expires_at > NOW() AND prt.used_at IS NULL`,
+            [token]
+        );
+        if (result.rows.length === 0) return false;
+        return { id: result.rows[0].user_id, email: result.rows[0].email, username: result.rows[0].username };
+    } catch (error: any) {
+        console.error(error);
+        throw new DatabaseError(error);
+    }
+}
+
+export async function invalidatePasswordResetToken(token: string): Promise<void> {
+    try {
+        await pool.query(`UPDATE password_reset_tokens SET used_at = NOW() WHERE token = $1`, [token]);
+    } catch (error: any) {
+        console.error(error);
+        throw new DatabaseError(error);
+    }
+}
+
+export async function updatePassword(userId: number, newPassword: string): Promise<void> {
+    try {
+        const passwordHash = await bcrypt.hash(newPassword, 10);
+        await pool.query(`UPDATE users SET password_hash = $1 WHERE id = $2`, [passwordHash, userId]);
+    } catch (error: any) {
+        console.error(error);
+        throw new DatabaseError(error);
+    }
+}
 
 export async function getMeHandler(userId: number): Promise<UserAccount | null> {
     try {

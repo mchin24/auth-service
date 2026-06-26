@@ -5,9 +5,16 @@ import {
     createUserHandler,
     DuplicateEmailError,
     generateTokens,
-    getMeHandler, invalidateRefreshToken, validateRefreshToken,
+    generatePasswordResetToken,
+    getMeHandler,
+    invalidatePasswordResetToken,
+    invalidateRefreshToken,
+    updatePassword,
+    validatePasswordResetToken,
+    validateRefreshToken,
     verifyUserByEmail
 } from "../services/auth.js";
+import { sendPasswordResetEmail } from "../services/email.js";
 
 export function isValidEmail(email: string): ValidationResponse {
     const result = z.email().safeParse(email);
@@ -151,6 +158,64 @@ export async function logout(req: Request, res: Response): Promise<void> {
         await invalidateRefreshToken(req.body.refreshToken);
         res.status(204).send();
     } catch (error: any) {
+        console.error(error);
+        res.status(500).send();
+    }
+}
+
+export async function forgotPassword(req: Request, res: Response): Promise<void> {
+    res.contentType('application/json');
+
+    if (!req.body?.email) {
+        res.status(400).send({ message: ['email is required'] });
+        return;
+    }
+
+    const validEmail = isValidEmail(req.body.email);
+    if (!validEmail.valid) {
+        res.status(400).send({ message: validEmail.error });
+        return;
+    }
+
+    try {
+        const result = await generatePasswordResetToken(req.body.email);
+        if (result) {
+            await sendPasswordResetEmail(req.body.email, result.token);
+        }
+    } catch (error) {
+        console.error(error);
+        res.status(500).send();
+        return;
+    }
+
+    res.status(202).send();
+}
+
+export async function resetPassword(req: Request, res: Response): Promise<void> {
+    res.contentType('application/json');
+
+    if (!req.body?.token) {
+        res.status(400).send({ message: ['token is required'] });
+        return;
+    }
+
+    if (!req.body?.newPassword) {
+        res.status(400).send({ message: ['newPassword is required'] });
+        return;
+    }
+
+    try {
+        const user = await validatePasswordResetToken(req.body.token);
+        if (!user) {
+            res.status(401).send({ message: ['invalid or expired token'] });
+            return;
+        }
+
+        await updatePassword(user.id, req.body.newPassword);
+        await invalidatePasswordResetToken(req.body.token);
+
+        res.status(200).send();
+    } catch (error) {
         console.error(error);
         res.status(500).send();
     }

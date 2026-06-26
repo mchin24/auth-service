@@ -97,8 +97,8 @@ describe('Testing Register API Response - 4xx responses', () => {
 describe('Testing Login API Response - 200 response', () => {
   test('successful account login on /auth/login should return 200', async () => {
     const user = {
-      "email": "user@example.com",
-      "password": "test12345!"
+      "email": "mike1@example.com",
+      "password": "Badpassword123!"
     }
     
     const response = await request(app).post('/auth/login').send(user).set('Accept', 'application/json');
