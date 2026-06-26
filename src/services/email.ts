@@ -10,7 +10,7 @@ export async function sendPasswordResetEmail(to: string, token: string): Promise
     const resetLink = `${baseUrl}/reset-password?token=${token}`;
 
     await resend.emails.send({
-        from: 'noreply@midnightdevstudio.com',
+        from: 'send@midnightdev.studio',
         to,
         subject: 'Reset your password',
         html: `<p>Click the link below to reset your password. This link expires in 1 hour.</p>

