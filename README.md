@@ -12,6 +12,12 @@
 
 ---
 
+## Local Development
+
+`docker-compose.yml` is for local development only — it overrides the Dockerfile's `CMD` with `npm run dev` (tsx watch, hot-reload) and bind-mounts the source tree. Production deployments build and run the `Dockerfile` directly (`npm run build` + `npm run start` against compiled `dist/` output); the compose file is not part of that pipeline.
+
+---
+
 ## Endpoints
 
 ### POST /auth/register
