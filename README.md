@@ -5,10 +5,10 @@
 - [x] `POST /auth/register`
 - [x] `POST /auth/login`
 - [x] `POST /auth/logout`
-- [ ] `POST /auth/refresh`
-- [ ] `GET  /auth/me`
-- [ ] `POST /auth/forgot-password`
-- [ ] `POST /auth/reset-password`
+- [x] `POST /auth/refresh`
+- [x] `GET  /auth/me`
+- [x] `POST /auth/forgot-password`
+- [x] `POST /auth/reset-password`
 
 ---
 
@@ -139,7 +139,8 @@ Authorization: Bearer <accessToken>
 {
   "id": 1,
   "username": "string",
-  "email": "user@example.com"
+  "email": "user@example.com",
+  "createdAt": "2024-01-01T00:00:00.000Z"
 }
 ```
 
@@ -151,7 +152,7 @@ Authorization: Bearer <accessToken>
 
 ### POST /auth/forgot-password
 
-Generate a password reset token and enqueue a reset email via the Job Queue Service.
+Generate a password reset token and send a reset email via Resend.
 
 **Request**
 ```json
@@ -179,12 +180,7 @@ Complete a password reset using the token from the reset email.
 }
 ```
 
-**Response `200`**
-```json
-{
-  "message": "Password updated successfully"
-}
-```
+**Response `200`** *(no body)*
 
 **Errors**
 - `400` — missing fields or password doesn't meet requirements
