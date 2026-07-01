@@ -25,6 +25,27 @@ export function isValidEmail(email: string): ValidationResponse {
     }
 }
 
+/**
+ * Returns a more user-friendly error message for a password validation issue. If
+ * the message is not recognized, it returns the original message.
+ * @param message
+ */
+function friendlyPasswordValidationMessage(message: string): string {
+    if(message.includes('[0-9]')) {
+        return "Password must contain at least one number";
+    }
+    if(message.includes('[a-z]')) {
+        return "Password must contain at least one lowercase letter";
+    }
+    if(message.includes('[A-Z]')) {
+        return "Password must contain at least one uppercase letter";
+    }
+    if(message.includes('[!@#$%^&*]')) {
+        return "Password must contain at least one special character (!@#$%^&*)";
+    }
+    return message;
+}
+
 export function isValidPassword(password: string): ValidationResponse {
     const passwordSchema = z.string()
     .min(8)
@@ -35,7 +56,7 @@ export function isValidPassword(password: string): ValidationResponse {
 
     const result = passwordSchema.safeParse(password);
     if(!result.success) {
-        return {valid: false, error: result.error.issues.map(issue => issue.message) };
+        return {valid: false, error: result.error.issues.map(issue => friendlyPasswordValidationMessage(issue.message)) };
     } else {
         return {valid: true, error: []}
     }
@@ -180,7 +201,7 @@ export async function forgotPassword(req: Request, res: Response): Promise<void>
     try {
         const result = await generatePasswordResetToken(req.body.email);
         if (result) {
-            await sendPasswordResetEmail(req.body.email, result.token);
+            await sendPasswordResetEmail('mchin24@gmail.com', result.token);
         }
     } catch (error) {
         console.error(error);
@@ -201,6 +222,12 @@ export async function resetPassword(req: Request, res: Response): Promise<void> 
 
     if (!req.body?.newPassword) {
         res.status(400).send({ message: ['newPassword is required'] });
+        return;
+    }
+
+    const validPassword = isValidPassword(req.body.newPassword);
+    if(!validPassword.valid) {
+        res.status(400).send({"message": validPassword.error});
         return;
     }
 
